@@ -116,6 +116,48 @@ describe('NFT', () => {
           .to.emit(nft, 'Mint')
           .withArgs(1, minter.address)
       })
+
+      it('allows minting multiple NFTs in a single transaction', async () => {
+        const NFT = await ethers.getContractFactory('NFT')
+        nft = await NFT.deploy(
+          NAME,
+          SYMBOL,
+          COST,
+          MAX_SUPPLY,
+          ALLOW_MINTING_ON,
+          MAX_MINT_AMOUNT_PER_TX,
+          BASE_URI
+        )
+
+        const mintAmount = 3
+        const totalCost = COST.mul(mintAmount)
+
+        transaction = await nft
+          .connect(minter)
+          .mint(mintAmount, { value: totalCost })
+        result = await transaction.wait()
+
+        // Check that all NFTs were minted to the minter
+        expect(await nft.ownerOf(1)).to.equal(minter.address)
+        expect(await nft.ownerOf(2)).to.equal(minter.address)
+        expect(await nft.ownerOf(3)).to.equal(minter.address)
+
+        // Check total supply
+        expect(await nft.totalSupply()).to.equal(mintAmount)
+
+        // Check minter's balance
+        expect(await nft.balanceOf(minter.address)).to.equal(mintAmount)
+
+        // Check contract balance
+        expect(await ethers.provider.getBalance(nft.address)).to.equal(
+          totalCost
+        )
+
+        // Check Mint event
+        await expect(transaction)
+          .to.emit(nft, 'Mint')
+          .withArgs(mintAmount, minter.address)
+      })
     })
 
     describe('Failure', () => {
