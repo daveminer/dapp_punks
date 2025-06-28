@@ -13,6 +13,7 @@ describe('NFT', () => {
   const COST = ether(10)
   const MAX_SUPPLY = 25
   const BASE_URI = 'ipfs://QmQ2jnDYecFhrf3asEWjyjZRX1pZSsNWG3qHzmNDvXa9qg/'
+  const MAX_MINT_AMOUNT_PER_TX = 5
 
   let nft, deployer, minter
 
@@ -33,6 +34,7 @@ describe('NFT', () => {
         COST,
         MAX_SUPPLY,
         ALLOW_MINTING_ON,
+        MAX_MINT_AMOUNT_PER_TX,
         BASE_URI
       )
     })
@@ -80,6 +82,7 @@ describe('NFT', () => {
           COST,
           MAX_SUPPLY,
           ALLOW_MINTING_ON,
+          MAX_MINT_AMOUNT_PER_TX,
           BASE_URI
         )
 
@@ -125,6 +128,7 @@ describe('NFT', () => {
           COST,
           MAX_SUPPLY,
           ALLOW_MINTING_ON,
+          MAX_MINT_AMOUNT_PER_TX,
           BASE_URI
         )
 
@@ -141,6 +145,7 @@ describe('NFT', () => {
           COST,
           MAX_SUPPLY,
           ALLOW_MINTING_ON,
+          MAX_MINT_AMOUNT_PER_TX,
           BASE_URI
         )
 
@@ -160,6 +165,7 @@ describe('NFT', () => {
           COST,
           MAX_SUPPLY,
           ALLOW_MINTING_ON,
+          MAX_MINT_AMOUNT_PER_TX,
           BASE_URI
         )
 
@@ -176,6 +182,7 @@ describe('NFT', () => {
           COST,
           MAX_SUPPLY,
           ALLOW_MINTING_ON,
+          MAX_MINT_AMOUNT_PER_TX,
           BASE_URI
         )
 
@@ -192,11 +199,29 @@ describe('NFT', () => {
           COST,
           MAX_SUPPLY,
           ALLOW_MINTING_ON,
+          MAX_MINT_AMOUNT_PER_TX,
           BASE_URI
         )
         nft.connect(minter).mint(1, { value: COST })
 
         await expect(nft.tokenURI('99')).to.be.reverted
+      })
+
+      it('does not allow a transaction to mint more than max amount per transaction', async () => {
+        const ALLOW_MINTING_ON = Date.now().toString().slice(0, 10) // Now
+        const NFT = await ethers.getContractFactory('NFT')
+        nft = await NFT.deploy(
+          NAME,
+          SYMBOL,
+          COST,
+          MAX_SUPPLY,
+          ALLOW_MINTING_ON,
+          MAX_MINT_AMOUNT_PER_TX,
+          BASE_URI
+        )
+
+        await expect(nft.connect(minter).mint(15, { value: COST })).to.be
+          .reverted
       })
     })
   })
@@ -214,6 +239,7 @@ describe('NFT', () => {
         COST,
         MAX_SUPPLY,
         ALLOW_MINTING_ON,
+        MAX_MINT_AMOUNT_PER_TX,
         BASE_URI
       )
 
@@ -247,6 +273,7 @@ describe('NFT', () => {
           COST,
           MAX_SUPPLY,
           ALLOW_MINTING_ON,
+          MAX_MINT_AMOUNT_PER_TX,
           BASE_URI
         )
 
@@ -286,6 +313,7 @@ describe('NFT', () => {
           COST,
           MAX_SUPPLY,
           ALLOW_MINTING_ON,
+          MAX_MINT_AMOUNT_PER_TX,
           BASE_URI
         )
         nft.connect(minter).mint(1, { value: COST })
