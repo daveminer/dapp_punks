@@ -13,9 +13,17 @@ contract NFT is ERC721Enumerable, Ownable {
     uint256 public maxMintAmountPerTx;
     string public baseURI;
     string public baseExtension = ".json";
+    bool public paused = false;
 
     event Mint(uint256 indexed mintAmount, address indexed minter);
     event Withdraw(uint256 indexed amount, address indexed sender);
+    event Paused(address indexed account);
+    event Unpaused(address indexed account);
+
+    modifier whenNotPaused() {
+        require(!paused, "Contract is paused");
+        _;
+    }
 
     constructor(
         string memory _name,
@@ -33,7 +41,7 @@ contract NFT is ERC721Enumerable, Ownable {
         baseURI = _baseURI;
     }
 
-    function mint(uint256 _mintAmount) public payable {
+    function mint(uint256 _mintAmount) public payable whenNotPaused {
         // Only allow minting after specified time
         require(block.timestamp >= allowMintingOn, "Minting not allowed yet");
 
@@ -74,6 +82,16 @@ contract NFT is ERC721Enumerable, Ownable {
     }
 
     // Owner functions
+
+    function pause() public onlyOwner {
+        paused = true;
+        emit Paused(msg.sender);
+    }
+
+    function unpause() public onlyOwner {
+        paused = false;
+        emit Unpaused(msg.sender);
+    }
 
     function withdraw() public onlyOwner {
         uint256 balance = address(this).balance;

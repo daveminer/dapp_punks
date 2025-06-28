@@ -12,6 +12,7 @@ async function main() {
   const COST = ethers.utils.parseUnits('10', 'ether')
   const MAX_SUPPLY = 25
   const NFT_MINT_DATE = (Date.now() + 60000).toString().slice(0, 10)
+  const MAX_MINT_AMOUNT_PER_TX = 5
   const IPFS_METADATA_URI =
     'ipfs://QmQ2jnDYecFhrf3asEWjyjZRX1pZSsNWG3qHzmNDvXa9qg/'
 
@@ -23,6 +24,7 @@ async function main() {
     COST,
     MAX_SUPPLY,
     NFT_MINT_DATE,
+    MAX_MINT_AMOUNT_PER_TX,
     IPFS_METADATA_URI
   )
 
