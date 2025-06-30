@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "./ERC721Enumerable.sol";
 import "./Ownable.sol";
+import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 contract NFT is ERC721Enumerable, Ownable {
     using Strings for uint256;
@@ -14,14 +15,26 @@ contract NFT is ERC721Enumerable, Ownable {
     string public baseURI;
     string public baseExtension = ".json";
     bool public paused = false;
+    
+    // Merkle tree for allowed addresses
+    bytes32 public allowedAddressesRoot;
 
     event Mint(uint256 indexed mintAmount, address indexed minter);
     event Withdraw(uint256 indexed amount, address indexed sender);
     event Paused(address indexed account);
     event Unpaused(address indexed account);
+    event AllowedAddressesRootSet(bytes32 indexed root);
 
     modifier whenNotPaused() {
         require(!paused, "Contract is paused");
+        _;
+    }
+
+    modifier onlyAllowedAddress(bytes32[] calldata _merkleProof) {
+        require(
+            isAddressAllowed(msg.sender, _merkleProof) || allowedAddresses[msg.sender],
+            "Address not in allowed list"
+        );
         _;
     }
 
@@ -41,7 +54,7 @@ contract NFT is ERC721Enumerable, Ownable {
         baseURI = _baseURI;
     }
 
-    function mint(uint256 _mintAmount) public payable whenNotPaused {
+    function mint(uint256 _mintAmount, bytes32[] calldata _merkleProof) public payable whenNotPaused onlyAllowedAddress(_merkleProof) {
         // Only allow minting after specified time
         require(block.timestamp >= allowMintingOn, "Minting not allowed yet");
 
@@ -65,6 +78,11 @@ contract NFT is ERC721Enumerable, Ownable {
         }
 
         emit Mint(_mintAmount, msg.sender);
+    }
+
+    function isAddressAllowed(address _address, bytes32[] calldata _merkleProof) public view returns (bool) {
+        bytes32 leaf = keccak256(abi.encodePacked(_address));
+        return MerkleProof.verify(_merkleProof, allowedAddressesRoot, leaf);
     }
 
     function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
@@ -104,5 +122,10 @@ contract NFT is ERC721Enumerable, Ownable {
 
     function setCost(uint256 _newCost) public onlyOwner {
         cost = _newCost;
+    }
+
+    function setAllowedAddressesRoot(bytes32 _root) public onlyOwner {
+        allowedAddressesRoot = _root;
+        emit AllowedAddressesRootSet(_root);
     }
 }
