@@ -45,13 +45,15 @@ contract NFT is ERC721Enumerable, Ownable {
         uint256 _maxSupply,
         uint256 _allowMintingOn,
         uint256 _maxMintAmountPerTx,
-        string memory _baseURI
+        string memory _baseURI,
+        bytes32 _allowedAddressesRoot
     ) ERC721(_name, _symbol) {
         cost = _cost;
         maxSupply = _maxSupply;
         allowMintingOn = _allowMintingOn;
         maxMintAmountPerTx = _maxMintAmountPerTx;
         baseURI = _baseURI;
+        allowedAddressesRoot = _allowedAddressesRoot;
     }
 
     function mint(uint256 _mintAmount, bytes32[] calldata _merkleProof) public payable whenNotPaused onlyAllowedAddress(_merkleProof) {
