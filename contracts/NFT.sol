@@ -32,7 +32,7 @@ contract NFT is ERC721Enumerable, Ownable {
 
     modifier onlyAllowedAddress(bytes32[] calldata _merkleProof) {
         require(
-            isAddressAllowed(msg.sender, _merkleProof) || allowedAddresses[msg.sender],
+            isAddressAllowed(msg.sender, _merkleProof),
             "Address not in allowed list"
         );
         _;
