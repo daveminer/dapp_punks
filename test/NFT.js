@@ -1,6 +1,6 @@
 const { expect } = require('chai')
 const { ethers } = require('hardhat')
-const { StandardMerkleTree } = require('@openzeppelin/merkle-tree')
+const { buildMerkleTree, getMerkleProof } = require('../src/utils')
 
 const tokens = (n) => {
   return ethers.utils.parseUnits(n.toString(), 'ether')
@@ -30,12 +30,15 @@ describe('NFT', () => {
     allowedAddresses = [deployer.address, minter.address]
 
     // Prepare values for the Merkle tree (array of arrays)
-    const values = allowedAddresses.map((addr) => [addr])
-    const tree = StandardMerkleTree.of(values, ['address'])
+    // const values = allowedAddresses.map((addr) => [addr])
+    // const tree = StandardMerkleTree.of(values, ['address'])
+    const tree = buildMerkleTree(allowedAddresses)
+
     allowedAddressesRootWithMinter = tree.root
     // Find the index of the minter in the values array
-    const minterIndex = values.findIndex((v) => v[0] === minter.address)
-    minterProof = tree.getProof(minterIndex)
+    // const minterIndex = values.findIndex((v) => v[0] === minter.address)
+    // minterProof = tree.getProof(minterIndex)
+    minterProof = getMerkleProof(tree, minter.address, allowedAddresses)
   })
 
   describe('Deployment', () => {
