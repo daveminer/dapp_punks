@@ -23,7 +23,7 @@ async function main() {
   const user1 = accounts[2]
 
   const allowedAddresses = [deployer.address, minter.address, user1.address]
-  const tree = buildMerkleTree(allowedAddresses)
+  const tree = await buildMerkleTree(allowedAddresses)
 
   // Deploy NFT
   const NFT = await hre.ethers.getContractFactory('NFT')

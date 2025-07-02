@@ -27,6 +27,7 @@ function App() {
   const [totalSupply, setTotalSupply] = useState(0)
   const [cost, setCost] = useState(0)
   const [balance, setBalance] = useState(0)
+  const [allowedAddresses, setAllowedAddresses] = useState([])
 
   const [isLoading, setIsLoading] = useState(true)
 
@@ -67,6 +68,13 @@ function App() {
 
     // Fetch account balance
     setBalance(await nft.balanceOf(account))
+
+    // Set allowed addresses (first two Hardhat accounts)
+    const allowedAddrs = [
+      '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // Hardhat account 0
+      '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', // Hardhat account 1
+    ]
+    setAllowedAddresses(allowedAddrs)
 
     console.log('isLoading', isLoading)
 
@@ -120,6 +128,7 @@ function App() {
                 nft={nft}
                 cost={cost}
                 setIsLoading={setIsLoading}
+                allowedAddresses={allowedAddresses}
               />
             </Col>
           </Row>

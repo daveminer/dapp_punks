@@ -30,7 +30,7 @@ describe('NFT', () => {
     allowedAddresses = [deployer.address, minter.address]
 
     // Prepare values for the Merkle tree (array of arrays)
-    const tree = buildMerkleTree(allowedAddresses)
+    const tree = await buildMerkleTree(allowedAddresses)
 
     allowedAddressesRootWithMinter = tree.root
     // Find the index of the minter in the values array
