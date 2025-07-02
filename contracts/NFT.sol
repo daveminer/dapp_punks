@@ -83,7 +83,7 @@ contract NFT is ERC721Enumerable, Ownable {
     }
 
     function isAddressAllowed(address _address, bytes32[] calldata _merkleProof) public view returns (bool) {
-        bytes32 leaf = keccak256(abi.encodePacked(_address));
+        bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(_address))));
         return MerkleProof.verify(_merkleProof, allowedAddressesRoot, leaf);
     }
 
