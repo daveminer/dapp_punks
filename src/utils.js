@@ -1,8 +1,7 @@
 const { StandardMerkleTree } = require('@openzeppelin/merkle-tree')
 
-const buildMerkleTree = (allowedAddresses) => {
-  return StandardMerkleTree.of(wrapAddresses(allowedAddresses), ['address'])
-}
+const buildMerkleTree = (allowedAddresses) =>
+  StandardMerkleTree.of(wrapAddresses(allowedAddresses), ['address'])
 
 // Gets the proof for an address in the list of allowed addresses
 const getMerkleProof = (tree, address, allowedAddresses) => {
@@ -12,9 +11,8 @@ const getMerkleProof = (tree, address, allowedAddresses) => {
   return tree.getProof(index)
 }
 
-const wrapAddresses = (allowedAddresses) => {
-  return allowedAddresses.map((addr) => [addr])
-}
+const wrapAddresses = (allowedAddresses) =>
+  allowedAddresses.map((addr) => [addr])
 
 module.exports = {
   buildMerkleTree,
