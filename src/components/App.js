@@ -8,6 +8,7 @@ import Navigation from './Navigation'
 import Data from './Data'
 import Mint from './Mint'
 import Loading from './Loading'
+import PurchaseHistory from './PurchaseHistory'
 
 // ABIs: Import your contract ABIs here
 import NFT_ABI from '../abis/NFT.json'
@@ -131,6 +132,9 @@ function App() {
                 setIsLoading={setIsLoading}
                 allowedAddresses={allowedAddresses}
               />
+              <div className='my-4'>
+                <PurchaseHistory nft={nft} account={account} />
+              </div>
             </Col>
           </Row>
         </>
