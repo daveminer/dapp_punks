@@ -5,6 +5,7 @@
 // will compile your contracts, add the Hardhat Runtime Environment's members to the
 // global scope, and execute the script.
 const hre = require('hardhat')
+const { buildMerkleTree, getMerkleProof } = require('../src/utils')
 
 async function main() {
   const NAME = 'Dapp Punks'
@@ -16,6 +17,14 @@ async function main() {
   const IPFS_METADATA_URI =
     'ipfs://QmQ2jnDYecFhrf3asEWjyjZRX1pZSsNWG3qHzmNDvXa9qg/'
 
+  const accounts = await hre.ethers.getSigners()
+  const deployer = accounts[0]
+  const minter = accounts[1]
+  const user1 = accounts[2]
+
+  const allowedAddresses = [deployer.address, minter.address, user1.address]
+  const tree = await buildMerkleTree(allowedAddresses)
+
   // Deploy NFT
   const NFT = await hre.ethers.getContractFactory('NFT')
   let nft = await NFT.deploy(
@@ -25,7 +34,8 @@ async function main() {
     MAX_SUPPLY,
     NFT_MINT_DATE,
     MAX_MINT_AMOUNT_PER_TX,
-    IPFS_METADATA_URI
+    IPFS_METADATA_URI,
+    tree.root
   )
 
   await nft.deployed()

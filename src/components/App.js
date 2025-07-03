@@ -8,6 +8,7 @@ import Navigation from './Navigation'
 import Data from './Data'
 import Mint from './Mint'
 import Loading from './Loading'
+import PurchaseHistory from './PurchaseHistory'
 
 // ABIs: Import your contract ABIs here
 import NFT_ABI from '../abis/NFT.json'
@@ -27,6 +28,7 @@ function App() {
   const [totalSupply, setTotalSupply] = useState(0)
   const [cost, setCost] = useState(0)
   const [balance, setBalance] = useState(0)
+  const [allowedAddresses, setAllowedAddresses] = useState([])
 
   const [isLoading, setIsLoading] = useState(true)
 
@@ -67,6 +69,14 @@ function App() {
 
     // Fetch account balance
     setBalance(await nft.balanceOf(account))
+
+    // Set allowed addresses (first two Hardhat accounts)
+    const allowedAddrs = [
+      '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // Hardhat account 0
+      '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', // Hardhat account 1
+      '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC', // Hardhat account 2
+    ]
+    setAllowedAddresses(allowedAddrs)
 
     console.log('isLoading', isLoading)
 
@@ -120,7 +130,11 @@ function App() {
                 nft={nft}
                 cost={cost}
                 setIsLoading={setIsLoading}
+                allowedAddresses={allowedAddresses}
               />
+              <div className='my-4'>
+                <PurchaseHistory nft={nft} account={account} />
+              </div>
             </Col>
           </Row>
         </>

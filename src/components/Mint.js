@@ -3,8 +3,9 @@ import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Spinner from 'react-bootstrap/Spinner'
 import { ethers } from 'ethers'
+import { buildMerkleTree, getMerkleProof } from '../utils'
 
-const Mint = ({ provider, nft, cost, setIsLoading }) => {
+const Mint = ({ provider, nft, cost, setIsLoading, allowedAddresses }) => {
   const [isWaiting, setIsWaiting] = useState(false)
   const [maxMintAmount, setMaxMintAmount] = useState(1)
   const [mintAmount, setMintAmount] = useState(1)
@@ -32,14 +33,32 @@ const Mint = ({ provider, nft, cost, setIsLoading }) => {
     try {
       const signer = await provider.getSigner()
       const totalCost = cost.mul(mintAmount)
+
+      // Get user's address
+      const userAddress = await signer.getAddress()
+
+      // Generate Merkle proof for the user's address
+      if (!allowedAddresses || !userAddress) {
+        throw new Error('Missing allowed addresses or user address')
+      }
+
+      const tree = await buildMerkleTree(allowedAddresses)
+      const proof = getMerkleProof(tree, userAddress, allowedAddresses)
+
       const transaction = await nft
         .connect(signer)
-        .mint(mintAmount, { value: totalCost })
+        .mint(mintAmount, proof, { value: totalCost })
       await transaction.wait()
     } catch (error) {
-      window.alert('User rejected or transaction reverted')
+      console.error('Error minting NFT:', error)
+      if (error.message.includes('Address not in allowed list')) {
+        window.alert('Your address is not in the allowed list')
+      } else {
+        window.alert('User rejected or transaction reverted')
+      }
     }
 
+    setIsWaiting(false)
     setIsLoading(true)
   }
 
