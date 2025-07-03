@@ -1,6 +1,23 @@
 const { MerkleTree } = require('merkletreejs')
 const { keccak256, defaultAbiCoder } = require('ethers/lib/utils')
 
+// Helper function to convert hex string to Uint8Array
+const hexToBytes = (hex) => {
+  const cleanHex = hex.replace(/^0x/, '')
+  const bytes = new Uint8Array(cleanHex.length / 2)
+  for (let i = 0; i < cleanHex.length; i += 2) {
+    bytes[i / 2] = parseInt(cleanHex.substr(i, 2), 16)
+  }
+  return bytes
+}
+
+// Helper function to convert Uint8Array to hex string
+const bytesToHex = (bytes) => {
+  return Array.from(bytes)
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
+}
+
 // Custom Merkle Tree wrapper to match OpenZeppelin StandardMerkleTree
 class CustomMerkleTree {
   constructor(values, leafEncoding) {
@@ -31,16 +48,16 @@ class CustomMerkleTree {
       // OZ: keccak256(bytes.concat(keccak256(abi.encode(address))))
       const inner = keccak256(defaultAbiCoder.encode(['address'], [address]))
       const leaf = keccak256(inner)
-      return Buffer.from(leaf.slice(2), 'hex')
+      return hexToBytes(leaf)
     }
     const valueStr = JSON.stringify(value)
-    return Buffer.from(keccak256(valueStr).slice(2), 'hex')
+    return hexToBytes(keccak256(valueStr))
   }
 
   // Get the root of the tree
   get root() {
     if (!this.initialized || !this.tree) return null
-    return '0x' + this.tree.getRoot().toString('hex')
+    return '0x' + bytesToHex(this.tree.getRoot())
   }
 
   // Get the proof for a specific index
@@ -53,15 +70,15 @@ class CustomMerkleTree {
     }
     const leaf = this.leaves[index]
     const proof = this.tree.getProof(leaf)
-    return proof.map((p) => '0x' + p.data.toString('hex'))
+    return proof.map((p) => '0x' + bytesToHex(p.data))
   }
 
   // Verify a proof
   verify(proof, root, leaf) {
     if (!this.initialized || !this.tree) return false
-    const proofBuffers = proof.map((p) => Buffer.from(p.slice(2), 'hex'))
-    const leafBuffer = Buffer.from(leaf.slice(2), 'hex')
-    const rootBuffer = Buffer.from(root.slice(2), 'hex')
+    const proofBuffers = proof.map((p) => hexToBytes(p))
+    const leafBuffer = hexToBytes(leaf)
+    const rootBuffer = hexToBytes(root)
     return this.tree.verify(proofBuffers, leafBuffer, rootBuffer)
   }
 }
